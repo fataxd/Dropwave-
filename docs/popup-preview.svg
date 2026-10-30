@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="399" viewBox="0 0 390 399">
+<title>Dropwave v0.3.0 — illustrative popup preview</title>
+<rect width="390" height="399" fill="#0a0f15"/>
+<g font-family="Arial, 'DejaVu Sans', sans-serif">
+<rect x="13" y="11" width="27" height="27" rx="7" fill="#143c80" stroke="#258ed2"/>
+<circle cx="26.5" cy="21" r="7" fill="none" stroke="#aaddff" stroke-width="1.5"/>
+<path d="M19 27 L25 25 L29 29 L34 21" fill="none" stroke="#fff" stroke-width="2"/>
+<rect x="18" y="29" width="17" height="7" rx="2" fill="#168c63"/>
+<text x="47" y="31" fill="#f6f9fb" font-size="19" font-weight="700">Dropwave</text>
+<text x="321" y="29" fill="#718394" font-size="14">☾</text>
+<rect x="339" y="14" width="34" height="19" rx="10" fill="#2a3744"/><circle cx="348" cy="23.5" r="7" fill="#eef3f7"/>
+<rect x="13" y="48" width="364" height="55" rx="10" fill="#0e151d" stroke="#1a2733"/>
+<circle cx="26.5" cy="76" r="5" fill="#2fc77b"/>
+<text x="40" y="72" font-size="12" font-weight="700" fill="#a4efc5">Вход выполнен</text>
+<text x="40" y="87" font-size="10" fill="#718394">Steam Store готов к получению игр</text>
+<rect x="13" y="113" width="112" height="31" rx="7" fill="#1679bd"/>
+<text x="69" y="133" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">Проверить</text>
+<text x="134" y="126" font-size="12" font-weight="700" fill="#f6f9fb">0 раздач</text>
+<text x="134" y="141" font-size="9" fill="#718394">Последняя: 21.10, 13:34</text>
+<rect x="13" y="153" width="364" height="98" rx="10" fill="#0d141b" stroke="#18242f"/>
+<line x1="14" y1="202" x2="376" y2="202" stroke="#18242f"/>
+<text x="23" y="171" font-size="11" font-weight="700" fill="#f6f9fb">Автопроверка</text>
+<text x="23" y="186" font-size="9" fill="#718394">Один раз в 6 часов · через 4 ч. 22 мин.</text>
+<rect x="264" y="165" width="54" height="26" rx="6" fill="#0e151d" stroke="#1a2733"/>
+<text x="274" y="182" font-size="10" fill="#edf3f8">6 ч. ▾</text>
+<rect x="326" y="168" width="36" height="20" rx="10" fill="#258b60"/><circle cx="352" cy="178" r="7" fill="#eef3f7"/>
+<text x="23" y="222" font-size="11" font-weight="700" fill="#f6f9fb">Автополучение</text>
+<text x="23" y="237" font-size="9" fill="#718394">Включено — забирает при проверках</text>
+<rect x="326" y="217" width="36" height="20" rx="10" fill="#258b60"/><circle cx="352" cy="227" r="7" fill="#eef3f7"/>
+<rect x="13" y="261" width="364" height="35" rx="9" fill="#0d141b" stroke="#18242f"/>
+<rect x="17" y="265" width="118" height="27" rx="6" fill="#16232e"/>
+<text x="76" y="282" font-size="10" text-anchor="middle" font-weight="700" fill="#f6f9fb">Текущие</text>
+<text x="196" y="282" font-size="10" text-anchor="middle" font-weight="700" fill="#718394">История</text>
+<text x="314" y="282" font-size="10" text-anchor="middle" font-weight="700" fill="#718394">Журнал</text>
+<text x="195" y="337" font-size="11" text-anchor="middle" fill="#5d6d7b">Сейчас бесплатных раздач нет.</text>
+<line x1="13" y1="359" x2="377" y2="359" stroke="#18242f"/>
+<text x="13" y="379" font-size="9" fill="#1679bd">Открыть фильтр Steam</text>
+<text x="282" y="379" font-size="9" fill="#5d6d7b">by K0T0FEICH</text>
+<text x="346" y="392" font-size="9" fill="#5d6d7b">v0.3.0</text>
+</g>
+</svg>
