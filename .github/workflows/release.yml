@@ -1,0 +1,63 @@
+name: Publish Dropwave Release
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/release.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    name: Package and publish extension
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Read extension version
+        id: version
+        shell: bash
+        run: |
+          VERSION="$(python3 -c 'import json; print(json.load(open("manifest.json", encoding="utf-8"))["version"])')"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "archive=Dropwave-v$VERSION.zip" >> "$GITHUB_OUTPUT"
+
+      - name: Validate required files and build installable ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          for f in manifest.json background.js popup.html popup.css popup.js icons/icon16.png icons/icon32.png icons/icon48.png icons/icon128.png; do
+            test -f "$f" || { echo "Missing $f"; exit 1; }
+          done
+          python3 -m json.tool manifest.json > /dev/null
+          zip -q -r -9 "${{ steps.version.outputs.archive }}" \
+            manifest.json background.js popup.html popup.css popup.js \
+            icons README.txt README.md CHANGELOG.md
+
+      - name: Publish GitHub Release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+          ARCHIVE: ${{ steps.version.outputs.archive }}
+        run: |
+          set -euo pipefail
+          TAG="v$VERSION"
+          NOTES="docs/RELEASE_NOTES_v$VERSION.md"
+          if [ ! -f "$NOTES" ]; then
+            printf '# Dropwave %s\n\nDownload the installable ZIP from Assets.\n' "$TAG" > release-notes-generated.md
+            NOTES=release-notes-generated.md
+          fi
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            gh release upload "$TAG" "$ARCHIVE" --clobber
+          else
+            gh release create "$TAG" "$ARCHIVE" \
+              --target "$GITHUB_SHA" \
+              --title "Dropwave $TAG" \
+              --notes-file "$NOTES" \
+              --latest
+          fi
