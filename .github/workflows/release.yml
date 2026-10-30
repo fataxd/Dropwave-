@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/release.yml'
+      - 'manifest.json'
 
 permissions:
   contents: write
@@ -34,9 +35,15 @@ jobs:
             test -f "$f" || { echo "Missing $f"; exit 1; }
           done
           python3 -m json.tool manifest.json > /dev/null
-          zip -q -r -9 "${{ steps.version.outputs.archive }}" \
-            manifest.json background.js popup.html popup.css popup.js \
-            icons README.txt README.md CHANGELOG.md
+          ASSETS=(manifest.json background.js popup.html popup.css popup.js icons README.txt README.md CHANGELOG.md)
+          VERSION="${{ steps.version.outputs.version }}"
+          if [ "$VERSION" != "0.3.0" ]; then
+            for f in i18n.js _locales/ru/messages.json _locales/en/messages.json; do
+              test -f "$f" || { echo "Missing translation file $f"; exit 1; }
+            done
+            ASSETS+=(i18n.js _locales)
+          fi
+          zip -q -r -9 "${{ steps.version.outputs.archive }}" "${ASSETS[@]}"
 
       - name: Publish GitHub Release
         shell: bash
