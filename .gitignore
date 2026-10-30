@@ -1,0 +1,12 @@
+# Local tooling / Локальные файлы
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+node_modules/
+*.log
+*.tmp
+*.bak
+*.zip
+dist/
