@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dropwave</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <main class="app">
+    <header class="header">
+      <div class="brand">
+        <img class="brand-logo" src="icons/icon32.png" alt="">
+        <h1>Dropwave</h1>
+      </div>
+      <div class="theme-control" title="Переключить тему">
+        <span id="themeIcon" class="theme-icon" aria-hidden="true">☾</span>
+        <label class="switch theme-switch" aria-label="Светлая тема">
+          <input id="themeToggle" type="checkbox">
+          <span class="toggle"></span>
+        </label>
+      </div>
+    </header>
+
+    <section id="steamSessionCard" class="steam-session checking" aria-live="polite">
+      <div class="steam-session-main">
+        <span id="steamSessionDot" class="steam-session-dot"></span>
+        <div class="steam-session-copy">
+          <strong id="steamSessionTitle">Проверяю Steam Store…</strong>
+          <small id="steamSessionText">Состояние входа в этом браузере</small>
+        </div>
+      </div>
+      <button id="steamLoginBtn" class="steam-session-action hidden" type="button">Войти</button>
+    </section>
+
+    <div id="errorBox" class="error hidden"></div>
+    <div id="noticeBox" class="notice hidden"></div>
+
+    <section class="check-strip">
+      <button id="checkBtn" class="primary" type="button">
+        <span id="checkBtnText">Проверить</span>
+      </button>
+      <div class="check-meta">
+        <strong id="gamesCount">0</strong>
+        <small>Последняя: <span id="lastCheck">—</span></small>
+      </div>
+    </section>
+
+    <section class="settings" aria-label="Настройки">
+      <div class="setting-row">
+        <div class="setting-copy">
+          <strong>Автопроверка</strong>
+          <small><span id="autoCheckText">Раз в 24 часа</span> · <span id="nextCheck">—</span></small>
+        </div>
+        <select id="intervalSelect" class="interval-select" aria-label="Период проверки">
+          <option value="6">6 ч.</option>
+          <option value="12">12 ч.</option>
+          <option value="24">24 ч.</option>
+        </select>
+        <label class="switch" aria-label="Автопроверка">
+          <input id="autoCheck" type="checkbox">
+          <span class="toggle"></span>
+        </label>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-copy">
+          <strong>Автополучение</strong>
+          <small id="autoClaimText">Выключено — забираете кнопкой</small>
+        </div>
+        <label class="switch" aria-label="Автополучение">
+          <input id="autoClaim" type="checkbox">
+          <span class="toggle"></span>
+        </label>
+      </div>
+    </section>
+
+    <nav class="tabs" aria-label="Разделы">
+      <button id="currentTab" class="tab active" type="button">Текущие</button>
+      <button id="historyTab" class="tab" type="button">История <span id="historyCount"></span></button>
+      <button id="journalTab" class="tab" type="button">Журнал <span id="journalCount"></span></button>
+    </nav>
+
+    <section id="currentSection" class="games-section">
+      <div id="gamesList" class="games-list"></div>
+      <div id="emptyState" class="empty-state hidden">Сейчас бесплатных раздач нет.</div>
+    </section>
+
+    <section id="historySection" class="games-section hidden">
+      <div id="historyStats" class="history-stats hidden"></div>
+      <div id="historyList" class="history-list"></div>
+      <div id="historyEmpty" class="empty-state hidden">История пока пуста.</div>
+    </section>
+
+    <section id="journalSection" class="games-section hidden" aria-label="Журнал получения">
+      <div class="journal-toolbar">
+        <span id="journalSummary">События получения игр</span>
+        <button id="clearJournalBtn" class="link-btn hidden" type="button">Очистить</button>
+      </div>
+      <div id="journalList" class="journal-list"></div>
+      <div id="journalEmpty" class="empty-state hidden">Попыток получения пока не было.</div>
+    </section>
+
+    <footer>
+      <button id="openSearchBtn" class="link-btn" type="button">Открыть фильтр Steam</button>
+      <div class="footer-meta">
+        <span class="author">by <a class="author-link" href="https://pikabu.ru/@K0T0FEICH" target="_blank" rel="noopener noreferrer"><strong>K0T0FEICH</strong></a></span>
+        <span class="version">v0.3.0</span>
+      </div>
+    </footer>
+  </main>
+
+  <script src="popup.js"></script>
+</body>
+</html>
