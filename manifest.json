@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Dropwave",
-  "version": "0.3.0",
-  "description": "Dropwave отслеживает временно бесплатные игры Steam и позволяет получать их вручную или автоматически через активную сессию Steam Store в браузере.",
+  "version": "0.3.1",
+  "description": "__MSG_extensionDescription__",
   "permissions": [
     "alarms",
     "storage",
@@ -31,5 +31,6 @@
     "32": "icons/icon32.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
-  }
+  },
+  "default_locale": "ru"
 }

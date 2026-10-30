@@ -1,0 +1,220 @@
+// Dropwave shared RU/EN localization (popup + Manifest V3 service worker).
+// Russian is the canonical message language of the existing v0.3.0 engine.
+(function (root) {
+  'use strict';
+  const english = {
+  "Язык": "Language",
+  "новых раздач": "new giveaways",
+  "Найдено": "Found",
+  "Найдено {count} новых раздач. Нажмите на уведомление, чтобы открыть поиск Steam.": "Found {count} new giveaways. Click the notification to open Steam Search.",
+  "Ваш язык": "Your language",
+  "игра уже находится в вашей библиотеке Steam.": "this game is already in your Steam library.",
+  "Steam подтвердил добавление в библиотеку.": "Steam confirmed the game was added to your library.",
+  "мин.": "min",
+  "ч.": "h",
+  "д.": "d",
+  "через": "in",
+  "До конца:": "Time left:",
+  "До:": "Until:",
+  "Один раз в": "Every",
+  "Переключить тему": "Change theme",
+  "Светлая тема": "Light theme",
+  "Проверяю Steam Store…": "Checking Steam Store…",
+  "Состояние входа в этом браузере": "Sign-in status in this browser",
+  "Войти": "Sign in",
+  "Проверить": "Check",
+  "Последняя:": "Last:",
+  "Настройки": "Settings",
+  "Автопроверка": "Auto check",
+  "Раз в 24 часа": "Every 24 hours",
+  "Период проверки": "Check interval",
+  "Автополучение": "Auto claim",
+  "Выключено — забираете кнопкой": "Off — claim manually",
+  "Разделы": "Sections",
+  "Текущие": "Current",
+  "История": "History",
+  "Журнал": "Journal",
+  "Сейчас бесплатных раздач нет.": "No active free game offers right now.",
+  "История пока пуста.": "No history yet.",
+  "Журнал получения": "Claim journal",
+  "События получения игр": "Game claim activity",
+  "Очистить": "Clear",
+  "Попыток получения пока не было.": "No claim attempts yet.",
+  "Открыть фильтр Steam": "Open Steam search",
+  "6 ч.": "6 h",
+  "12 ч.": "12 h",
+  "24 ч.": "24 h",
+  "Ошибка проверки": "Check failed",
+  "Не удалось изменить настройку": "Could not update the setting",
+  "Не удалось изменить период проверки": "Could not change the check interval",
+  "Не удалось изменить автополучение": "Could not change Auto Claim",
+  "Автополучение включено, но проверка не завершилась: ": "Auto Claim enabled, but the check failed: ",
+  "Автополучение включено, но Steam Store не авторизован. Нажмите «Войти» в блоке Steam.": "Auto Claim is on, but you are signed out of Steam Store. Click Sign in.",
+  "Автополучение включено.": "Auto Claim enabled.",
+  "Автополучение выключено. Игры можно забирать кнопкой.": "Auto Claim disabled. You can claim games manually.",
+  "Не удалось открыть вход Steam Store": "Could not open Steam Store sign-in",
+  "Очистить журнал для текущего Steam-аккаунта?": "Clear the journal for the current Steam account?",
+  "Не удалось очистить журнал": "Could not clear the journal",
+  "Не удалось проверить Steam Store": "Could not check Steam Store",
+  "Не удалось проверить Steam Store.": "Could not check Steam Store.",
+  "Вход выполнен": "Signed in",
+  "Steam Store готов": "Steam Store ready",
+  "Steam Store готов к получению игр": "Steam Store is ready to claim games",
+  "Требуется вход": "Sign-in required",
+  "Войдите в Steam Store, чтобы забирать игры": "Sign in to Steam Store to claim games",
+  "Не удалось проверить вход": "Could not verify sign-in",
+  "Повторите проверку Steam Store": "Retry the Steam Store check",
+  "Повторить": "Retry",
+  "Включено — забирает при проверках": "On — claims during checks",
+  "Выключена": "Disabled",
+  "выключена": "disabled",
+  "планируется": "scheduled",
+  "ещё не было": "never",
+  "скоро": "soon",
+  "Получено:": "Claimed:",
+  "Вручную:": "Manual:",
+  "Ожидает:": "Pending:",
+  "раздач": "offers",
+  "раздача": "offer",
+  "раздачи": "offers",
+  "Активна": "Active",
+  "Завершена": "Ended",
+  "В библиотеке ✓": "In library ✓",
+  "Ждёт подтверждения": "Awaiting confirmation",
+  "Отмечено вручную": "Marked manually",
+  "Было": "Original price",
+  "Обнаружена": "Discovered",
+  "Окончание": "Ends",
+  "Не активна с проверки": "Inactive since check",
+  "Steam не сообщил срок": "Steam did not provide an end date",
+  "Открыть Steam": "Open Steam",
+  "Подтверждено Steam": "Verified by Steam",
+  "Снять отметку": "Remove mark",
+  "Отметить вручную": "Mark manually",
+  "Не удалось сохранить отметку": "Could not save the mark",
+  "Получена": "Claimed",
+  "Уже в библиотеке": "Already owned",
+  "Не подтверждено": "Unverified",
+  "Нужен вход": "Sign-in required",
+  "Подтвердите возраст": "Verify your age",
+  "В процессе": "In progress",
+  "Ошибка": "Error",
+  "Не определён аккаунт": "Account unknown",
+  "Нет SubID": "SubID missing",
+  "Раздача недоступна": "Offer unavailable",
+  "Неизвестно": "Unknown",
+  "Операции текущего аккаунта": "Current account activity",
+  "Операции без определённого аккаунта": "Activity without a confirmed account",
+  "Steam не предоставил подробностей.": "No further details from Steam.",
+  "Авто": "Auto",
+  "Вручную": "Manual",
+  "Проверить получение повторно": "Retry verification",
+  "Забрать в библиотеку": "Claim to library",
+  "Добавляю через Steam…": "Claiming via Steam…",
+  "Не удалось выполнить получение": "Could not claim the game",
+  "Срок окончания Steam не сообщил": "Steam did not provide an end time",
+  "Раздача должна была завершиться": "This offer may have ended",
+  "Проверяю…": "Checking…",
+  "Игра": "Game",
+  "Требуется вход в Steam Store. Войдите в Steam, чтобы забирать игры.": "Steam Store sign-in required. Sign in to claim games.",
+  "Steam просит подтвердить возраст на странице этой игры. Откройте Steam, подтвердите возраст и повторите.": "Steam requires age verification. Open the game page, verify your age, and try again.",
+  "Steam не показывает доступную кнопку Add to Account для этой раздачи.": "Steam did not show an available Add to Account button for this offer.",
+  "Эта игра уже обрабатывается Dropwave.": "Dropwave is already processing this game.",
+  "Steam принял запрос. Подтверждение лицензии пока ожидается.": "Steam accepted the request. License verification is pending.",
+  "Не удалось достоверно определить Steam-аккаунт.": "Could not reliably identify the Steam account.",
+  "Dropwave выполнил действие, но не смог подтвердить добавление. Проверьте библиотеку Steam.": "Dropwave sent the request but could not verify ownership. Check your Steam library.",
+  "Steam не подтвердил получение игры.": "Steam did not confirm the claim.",
+  "Некорректные данные игры.": "Invalid game data.",
+  "Недопустимый адрес.": "Invalid URL.",
+  "Автополучение ожидает подтверждённого входа в Steam Store.": "Auto Claim is waiting for a verified Steam Store sign-in.",
+  "Steam вернул слишком короткую страницу поиска": "Steam returned an unexpectedly short search page",
+  "Steam не вернул контейнер результатов поиска (изменена разметка или страница недоступна)": "Steam did not return its search results container (page changed or unavailable)",
+  "Steam изменил формат карточек раздач: поиск временно недостоверен": "Steam changed its search result layout; results cannot be trusted right now",
+  "Steam не подтвердил отсутствие результатов: оставлены данные последней успешной проверки": "Steam did not confirm zero results; previous verified results were preserved",
+  "Карточки Steam не удалось корректно разобрать": "Could not parse Steam search results",
+  "Steam показал скидку 100%, но карточки игр не удалось распознать": "Steam showed a 100% discount but offer cards could not be parsed",
+  "пустая или слишком короткая страница": "empty or unexpectedly short page",
+  "Не удалось создать служебную вкладку Steam": "Could not create a background Steam tab",
+  "Steam Search загрузился без пригодного HTML": "Steam Search returned no usable HTML",
+  "Steam вернул пустую страницу игры": "Steam returned an empty game page",
+  "Некорректный AppID": "Invalid AppID",
+  "Для ручной отметки требуется определить текущий Steam-аккаунт. Войдите в Steam Store.": "Sign in to Steam Store before marking a game for the current account.",
+  "Вход в Steam Store выполнен.": "Signed in to Steam Store.",
+  "Требуется вход в Steam Store.": "Steam Store sign-in required.",
+  "Страница похожа на авторизованную, но аккаунт пока не определён.": "The page appears signed in, but the account could not be identified.",
+  "Steam Store ответил, но состояние входа требует проверки в странице.": "Steam Store responded, but sign-in needs to be checked on the page.",
+  "Тихая проверка Steam Store не удалась.": "Background Steam Store sign-in check failed.",
+  "Steam показывает профиль, но не удалось определить ID аккаунта.": "Steam shows a profile, but its account ID could not be detected.",
+  "Steam Store открылся, но состояние входа определить не удалось.": "Steam Store opened, but sign-in status could not be determined.",
+  "Некорректные данные игры": "Invalid game data",
+  "Браузер не создал вкладку Steam": "Browser failed to create a Steam tab",
+  "Steam не предоставил ID авторизованного аккаунта. Получение остановлено.": "Steam did not provide a signed-in account ID. Claim stopped.",
+  "Steam не вернул результат получения лицензии.": "Steam did not return a license claim result.",
+  "Нужно войти именно в Steam Store в этом браузере.": "Sign in to Steam Store in this browser.",
+  "Игра уже есть в библиотеке Steam.": "This game is already in your Steam library.",
+  "Steam просит подтвердить возраст на странице игры.": "Steam requires age verification on the game page.",
+  "Steam не показывает активный блок Free to keep для этой игры.": "Steam did not show an active Free to Keep offer for this game.",
+  "Раздача найдена, но Dropwave не смог определить Steam Package ID (SubID).": "The offer was found, but Dropwave could not determine its Steam Package ID (SubID).",
+  "Steam Store не выдал sessionid. Обновите вход в Steam и повторите.": "Steam Store did not provide a session ID. Sign in again and retry.",
+  "Steam подтвердил добавление игры в библиотеку.": "Steam confirmed that the game was added to your library.",
+  "Steam принял запрос, но владение ещё не подтверждено. Dropwave повторит проверку при следующем поиске.": "Steam accepted the request but ownership is not yet verified. Dropwave will check again next time.",
+  "Steam принял запрос, но Dropwave не смог подтвердить лицензию по ответу.": "Steam accepted the request, but Dropwave could not verify the license from the response.",
+  "Steam слишком долго загружает страницу": "Steam took too long to load the page",
+  "Неизвестная ошибка": "Unknown error",
+  "Steam: новые бесплатные игры": "Steam: new free games",
+  "Steam: игра временно бесплатна": "Steam: limited-time free game",
+  "Нажмите на уведомление, чтобы открыть Steam.": "Click the notification to open Steam.",
+  "Скидка 100%": "100% off",
+  "Dropwave: новая бесплатная игра": "Dropwave: new free game",
+  "Автополучение завершено.": "Auto Claim completed.",
+  "Dropwave: игра добавлена в библиотеку": "Dropwave: game added to library",
+  "Dropwave: игра уже в библиотеке": "Dropwave: game already owned",
+  "Dropwave: требуется вход в Steam": "Dropwave: Steam sign-in required",
+  "Войдите в Steam Store в этом браузере, чтобы автополучение работало. Авторизации только в Steam Community недостаточно.": "Sign in to Steam Store in this browser for Auto Claim. Steam Community sign-in alone is not enough.",
+  "Dropwave: Steam требует подтверждение": "Dropwave: Steam verification required",
+  "Dropwave: результат не подтверждён": "Dropwave: claim not verified",
+  "Dropwave: не удалось забрать игру": "Dropwave: game could not be claimed"
+};
+
+  function detect() {
+    const browser = (typeof chrome !== 'undefined' && chrome.i18n?.getUILanguage?.()) || 'ru';
+    return /^ru(?:[-_]|$)/i.test(browser) ? 'ru' : 'en';
+  }
+
+  function t(message, language, vars) {
+    const input = String(message ?? '');
+    let output = language === 'en' ? (english[input] || input) : input;
+    for (const [key, value] of Object.entries(vars || {})) {
+      output = output.replaceAll('{' + key + '}', String(value));
+    }
+    return output;
+  }
+
+  // Previous journal entries contain Russian messages. Translate known messages
+  // on display rather than modifying stored user data or claim states.
+  function message(input, language) {
+    const source = String(input ?? '');
+    if (language !== 'en') return source;
+    const direct = english[source];
+    if (direct) return direct;
+    const patterns = [
+      [/^Steam Store ответил HTTP (\d+)\.$/, 'Steam Store responded with HTTP $1.'],
+      [/^Steam отклонил запрос бесплатной лицензии: HTTP (\d+)\.$/, 'Steam rejected the free-license request: HTTP $1.'],
+      [/^Steam вернул код результата (\d+); получение не подтверждено\.$/, 'Steam returned result code $1; the claim is not verified.'],
+      [/^Не удалось загрузить список раздач Steam\./, 'Could not load the Steam giveaway list.'],
+      [/^Не удалось определить аккаунт/, 'Could not identify the account'],
+      [/^Не удалось выполнить проверку/, 'Could not complete the check'],
+      [/^Steam: HTTP (\d+)/, 'Steam: HTTP $1'],
+      [/^Автополучение включено, но проверка не завершилась: /, 'Auto Claim is on, but the check failed: ']
+    ];
+    let result = source;
+    for (const [regex, replacement] of patterns) result = result.replace(regex, replacement);
+    // Some error strings are composed from known fragments.
+    for (const [ru, en] of Object.entries(english)) {
+      if (ru.length > 16 && result.includes(ru)) result = result.replaceAll(ru, en);
+    }
+    return result;
+  }
+
+  root.DW_I18N = Object.freeze({ detect, t, message });
+})(globalThis);

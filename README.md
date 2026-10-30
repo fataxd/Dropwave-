@@ -4,7 +4,7 @@
   <strong>Steam Free-to-Keep Game Tracker & Auto-Claimer</strong>
   <p>Минималистичное браузерное расширение для поиска и получения временно бесплатных игр Steam.<br>
   A minimal browser extension that tracks and optionally claims limited-time free Steam games.</p>
-  <p><strong>v0.3.0</strong> · Chromium Manifest V3 · Brave / Chrome</p>
+  <p><strong>v0.3.1</strong> · Chromium Manifest V3 · Brave / Chrome</p>
   <p><a href="#-русский">Русский</a> · <a href="#-english">English</a></p>
 </div>
 
@@ -40,6 +40,7 @@
 - ✅ Журнал успешных операций, ошибок и неподтверждённых запросов.
 - 👤 Раздельный учёт данных для Steam-аккаунтов; ручная отметка не равна подтверждённой лицензии.
 - 🌓 Компактный интерфейс с тёмной и светлой темами.
+- 🌐 **Русский и английский интерфейс**: переключатель **RU / EN** в шапке, сохранение языка и автоматический выбор по языку браузера.
 
 ### Установка в Brave или Google Chrome
 
@@ -73,6 +74,7 @@
 | --- | --- |
 | `manifest.json` | Конфигурация и разрешения браузерного расширения |
 | `background.js` | Поиск, фоновые проверки, получение лицензий и уведомления |
+| `i18n.js`, `_locales/` | Localized UI strings and extension description |
 | `popup.html`, `popup.css`, `popup.js` | Минималистичное меню расширения |
 | `icons/` | Оригинальные иконки Dropwave |
 | `CHANGELOG.md` | История версий |
@@ -99,6 +101,7 @@
 - ✅ Claim journal for successful, failed, and pending/unverified actions.
 - 👤 Account-specific claim records; manual marks do not count as verified ownership.
 - 🌓 Compact dark/light themes.
+- 🌐 **Russian and English UI**: **RU / EN** switch in the popup header; language selection is remembered, with browser-language detection by default.
 
 ### Installation (Brave / Chrome)
 

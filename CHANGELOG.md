@@ -1,5 +1,14 @@
 # Dropwave — Changelog / История изменений
 
+## v0.3.1 — Russian / English localization
+- RU: Добавлено переключение языка **RU / EN** в компактном popup, настройка сохраняется.
+- EN: Added a persistent **RU / EN** language switch in the compact popup.
+- RU: Переведены интерфейс, журнал, история раздач, статусы и системные уведомления.
+- EN: Localized the UI, claim journal, giveaway history, statuses, and notifications.
+- RU: Язык по умолчанию определяется по языку браузера; механизм выдачи лицензий не изменялся.
+- EN: Browser UI language is used by default; the Steam license-claiming logic was not modified.
+
+
 ## v0.3.0
 - RU: Добавлена вкладка **«Журнал»** для ручных и автоматических операций; до 150 записей на Steam-аккаунт.
 - EN: Added a **Journal** tab for manual and automatic claim attempts; up to 150 entries per Steam account.

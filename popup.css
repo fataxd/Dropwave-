@@ -406,3 +406,19 @@ footer {
 .journal-description { color: var(--text); font-size: 10px; margin-top: 6px; line-height: 1.4; overflow-wrap: anywhere; }
 .journal-meta { color: var(--muted); font-size: 9px; margin-top: 5px; }
 #clearJournalBtn:disabled { opacity: .5; cursor: wait; }
+
+/* v0.3.1 — compact language control in the existing header. */
+.language-select {
+  width: 44px;
+  height: 23px;
+  padding: 2px 2px 2px 4px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  outline-offset: 2px;
+}
+.language-select:focus-visible { outline: 2px solid var(--accent); }

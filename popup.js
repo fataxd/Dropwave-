@@ -37,17 +37,50 @@ const els = {
   steamSessionDot: document.getElementById('steamSessionDot'),
   steamSessionTitle: document.getElementById('steamSessionTitle'),
   steamSessionText: document.getElementById('steamSessionText'),
+  languageSelect: document.getElementById('languageSelect'),
   themeToggle: document.getElementById('themeToggle'),
   themeIcon: document.getElementById('themeIcon')
 };
 
 let countdownTimer = null;
 let steamSessionStatus = 'checking';
+let lastSessionResult = { status: 'checking' };
+let currentLanguage = DW_I18N.detect();
+
+function t(phrase, vars) {
+  return DW_I18N.t(phrase, currentLanguage, vars);
+}
+
+function localizeMessage(phrase) {
+  return DW_I18N.message(phrase, currentLanguage);
+}
+
+async function initLanguage() {
+  const state = await chrome.storage.local.get(['language']);
+  currentLanguage = ['ru', 'en'].includes(state.language) ? state.language : DW_I18N.detect();
+  applyLanguage();
+}
+
+function applyLanguage() {
+  document.documentElement.lang = currentLanguage;
+  els.languageSelect.value = currentLanguage;
+  document.querySelectorAll('[data-i18n]').forEach((element) => {
+    element.textContent = t(element.dataset.i18n);
+  });
+  document.querySelectorAll('[data-i18n-aria]').forEach((element) => {
+    element.setAttribute('aria-label', t(element.dataset.i18nAria));
+  });
+  document.querySelectorAll('[data-i18n-title]').forEach((element) => {
+    element.title = t(element.dataset.i18nTitle);
+  });
+}
+
 
 init();
 
 async function init() {
   await initTheme();
+  await initLanguage();
   await renderState();
   startCountdownRefresh();
   refreshSteamSessionStatus();
@@ -57,7 +90,7 @@ async function init() {
     hideError();
     try {
       const response = await sendMessage({ type: 'CHECK_NOW' });
-      if (!response?.ok) throw new Error(response?.error || 'Ошибка проверки');
+      if (!response?.ok) throw new Error(response?.error || t('Ошибка проверки'));
       await renderState();
     } catch (error) {
       showError(error.message || String(error));
@@ -71,7 +104,7 @@ async function init() {
     const response = await sendMessage({ type: 'SET_AUTO_CHECK', enabled });
     if (!response?.ok) {
       els.autoCheck.checked = !enabled;
-      showError(response?.error || 'Не удалось изменить настройку');
+      showError(response?.error || t('Не удалось изменить настройку'));
     }
     await renderState();
   });
@@ -82,7 +115,7 @@ async function init() {
 
     const response = await sendMessage({ type: 'SET_CHECK_INTERVAL', hours });
     if (!response?.ok) {
-      showError(response?.error || 'Не удалось изменить период проверки');
+      showError(response?.error || t('Не удалось изменить период проверки'));
     }
     await renderState();
   });
@@ -95,16 +128,16 @@ async function init() {
     const response = await sendMessage({ type: 'SET_AUTO_CLAIM', enabled });
     if (!response?.ok) {
       els.autoClaim.checked = !enabled;
-      showError(response?.error || 'Не удалось изменить автополучение');
+      showError(response?.error || t('Не удалось изменить автополучение'));
     } else {
       if (response.checkWarning) {
-        showError('Автополучение включено, но проверка не завершилась: ' + response.checkWarning);
+        showError(t('Автополучение включено, но проверка не завершилась: ') + response.checkWarning);
       } else if (enabled && steamSessionStatus === 'login_required') {
-        showError('Автополучение включено, но Steam Store не авторизован. Нажмите «Войти» в блоке Steam.');
+        showError(t('Автополучение включено, но Steam Store не авторизован. Нажмите «Войти» в блоке Steam.'));
       } else {
         showNotice(enabled
-          ? 'Автополучение включено.'
-          : 'Автополучение выключено. Игры можно забирать кнопкой.');
+          ? t('Автополучение включено.')
+          : t('Автополучение выключено. Игры можно забирать кнопкой.'));
       }
     }
     await renderState();
@@ -124,7 +157,7 @@ async function init() {
     els.steamLoginBtn.disabled = true;
     try {
       const response = await sendMessage({ type: 'OPEN_STEAM_LOGIN' });
-      if (!response?.ok) throw new Error(response?.error || 'Не удалось открыть вход Steam Store');
+      if (!response?.ok) throw new Error(response?.error || t('Не удалось открыть вход Steam Store'));
     } catch (error) {
       showError(error.message || String(error));
       els.steamLoginBtn.disabled = false;
@@ -135,11 +168,11 @@ async function init() {
   els.historyTab.addEventListener('click', () => switchTab('history'));
   els.journalTab.addEventListener('click', () => switchTab('journal'));
   els.clearJournalBtn.addEventListener('click', async () => {
-    if (!window.confirm('Очистить журнал для текущего Steam-аккаунта?')) return;
+    if (!window.confirm(t('Очистить журнал для текущего Steam-аккаунта?'))) return;
     els.clearJournalBtn.disabled = true;
     try {
       const response = await sendMessage({ type: 'CLEAR_JOURNAL' });
-      if (!response?.ok) throw new Error(response?.error || 'Не удалось очистить журнал');
+      if (!response?.ok) throw new Error(response?.error || t('Не удалось очистить журнал'));
       await renderState();
     } catch (error) {
       showError(error.message || String(error));
@@ -150,6 +183,14 @@ async function init() {
 
   els.openSearchBtn.addEventListener('click', () => {
     sendMessage({ type: 'OPEN_URL', url: SEARCH_URL });
+  });
+
+  els.languageSelect.addEventListener('change', async () => {
+    currentLanguage = els.languageSelect.value === 'en' ? 'en' : 'ru';
+    await chrome.storage.local.set({ language: currentLanguage });
+    applyLanguage();
+    setSteamSessionUi(lastSessionResult);
+    await renderState();
   });
 
   els.themeToggle?.addEventListener('change', async () => {
@@ -183,13 +224,13 @@ async function refreshSteamSessionStatus() {
   setSteamSessionUi({ status: 'checking' });
   try {
     const response = await sendMessage({ type: 'CHECK_STEAM_SESSION' });
-    if (!response?.ok) throw new Error(response?.error || 'Не удалось проверить Steam Store');
+    if (!response?.ok) throw new Error(response?.error || t('Не удалось проверить Steam Store'));
     setSteamSessionUi(response.result || { status: 'unknown' });
     await renderState();
   } catch (error) {
     setSteamSessionUi({
       status: 'unknown',
-      message: error.message || 'Не удалось проверить Steam Store.'
+      message: error.message || t('Не удалось проверить Steam Store.')
     });
   }
 }
@@ -197,6 +238,7 @@ async function refreshSteamSessionStatus() {
 function setSteamSessionUi(result) {
   const status = String(result?.status || 'unknown');
   steamSessionStatus = status;
+  lastSessionResult = result;
 
   els.steamSessionCard.className = 'steam-session';
   els.steamLoginBtn.classList.add('hidden');
@@ -205,33 +247,33 @@ function setSteamSessionUi(result) {
 
   if (status === 'checking') {
     els.steamSessionCard.classList.add('checking');
-    els.steamSessionTitle.textContent = 'Проверяю Steam Store…';
-    els.steamSessionText.textContent = 'Состояние входа в этом браузере';
+    els.steamSessionTitle.textContent = t('Проверяю Steam Store…');
+    els.steamSessionText.textContent = t('Состояние входа в этом браузере');
     return;
   }
 
   if (status === 'logged_in') {
     els.steamSessionCard.classList.add('logged-in');
-    els.steamSessionTitle.textContent = 'Вход выполнен';
+    els.steamSessionTitle.textContent = t('Вход выполнен');
     els.steamSessionText.textContent = result.accountName
-      ? `${result.accountName} · Steam Store готов`
-      : 'Steam Store готов к получению игр';
+      ? `${result.accountName} · ${t('Steam Store готов')}`
+      : t('Steam Store готов к получению игр');
     return;
   }
 
   if (status === 'login_required') {
     els.steamSessionCard.classList.add('login-required');
-    els.steamSessionTitle.textContent = 'Требуется вход';
-    els.steamSessionText.textContent = 'Войдите в Steam Store, чтобы забирать игры';
-    els.steamLoginBtn.textContent = 'Войти';
+    els.steamSessionTitle.textContent = t('Требуется вход');
+    els.steamSessionText.textContent = t('Войдите в Steam Store, чтобы забирать игры');
+    els.steamLoginBtn.textContent = t('Войти');
     els.steamLoginBtn.classList.remove('hidden');
     return;
   }
 
   els.steamSessionCard.classList.add('unknown');
-  els.steamSessionTitle.textContent = 'Не удалось проверить вход';
-  els.steamSessionText.textContent = result?.message || 'Повторите проверку Steam Store';
-  els.steamLoginBtn.textContent = 'Повторить';
+  els.steamSessionTitle.textContent = t('Не удалось проверить вход');
+  els.steamSessionText.textContent = localizeMessage(result?.message || t('Повторите проверку Steam Store'));
+  els.steamLoginBtn.textContent = t('Повторить');
   els.steamLoginBtn.dataset.action = 'retry';
   els.steamLoginBtn.classList.remove('hidden');
 }
@@ -269,13 +311,13 @@ async function renderState() {
   els.autoCheck.checked = state.autoCheck !== false;
   els.autoClaim.checked = state.autoClaim === true;
   els.autoClaimText.textContent = state.autoClaim === true
-    ? 'Включено — забирает при проверках'
-    : 'Выключено — забираете кнопкой';
+    ? t('Включено — забирает при проверках')
+    : t('Выключено — забираете кнопкой');
   els.intervalSelect.value = String(intervalHours);
   els.intervalSelect.disabled = state.autoCheck === false;
   els.autoCheckText.textContent = state.autoCheck === false
-    ? 'Выключена'
-    : `Один раз в ${intervalHours} ${pluralHours(intervalHours)}`;
+    ? t('Выключена')
+    : `${t('Один раз в')} ${intervalHours} ${pluralHours(intervalHours)}`;
 
   els.gamesCount.textContent = `${games.length} ${pluralGames(games.length)}`;
   els.historyCount.textContent = history.length ? `(${history.length})` : '';
@@ -288,16 +330,16 @@ async function renderState() {
   const manualCount = [...claims.manual].filter((id) => !claims.confirmed.has(id)).length;
   const pendingCount = [...claims.pending].filter((id) => !claims.confirmed.has(id)).length;
   els.historyStats.classList.toggle('hidden', !accountId);
-  els.historyStats.textContent = `Получено: ${confirmedCount} · Вручную: ${manualCount} · Ожидает: ${pendingCount}`;
+  els.historyStats.textContent = `${t('Получено:')} ${confirmedCount} · ${t('Вручную:')} ${manualCount} · ${t('Ожидает:')} ${pendingCount}`;
   renderJournal(journal, accountId);
   els.lastCheck.textContent = state.lastSuccess
     ? formatDate(state.lastSuccess)
-    : 'ещё не было';
+    : t('ещё не было');
   els.nextCheck.textContent = state.autoCheck === false
-    ? 'выключена'
-    : state.nextCheckAt ? formatNextCheck(state.nextCheckAt) : 'планируется';
+    ? t('выключена')
+    : state.nextCheckAt ? formatNextCheck(state.nextCheckAt) : t('планируется');
 
-  if (state.lastError) showError(state.lastError); else hideError();
+  if (state.lastError) showError(localizeMessage(state.lastError)); else hideError();
   renderGames(games, claims);
   renderHistory(history, claims);
 }
@@ -337,15 +379,15 @@ function renderHistory(history, claims) {
 
     const status = document.createElement('span');
     status.className = entry.isActive ? 'status-chip active' : 'status-chip ended';
-    status.textContent = entry.isActive ? 'Активна' : 'Завершена';
+    status.textContent = entry.isActive ? t('Активна') : t('Завершена');
     badges.appendChild(status);
 
     const claimStatus = getClaimStatus(claims, entry.appId);
     if (claimStatus !== 'none') {
       const claimedChip = document.createElement('span');
       claimedChip.className = 'status-chip claimed';
-      claimedChip.textContent = claimStatus === 'confirmed' ? 'В библиотеке ✓'
-        : claimStatus === 'pending' ? 'Ждёт подтверждения' : 'Отмечено вручную';
+      claimedChip.textContent = claimStatus === 'confirmed' ? t('В библиотеке ✓')
+        : claimStatus === 'pending' ? t('Ждёт подтверждения') : t('Отмечено вручную');
       badges.appendChild(claimedChip);
     }
 
@@ -355,15 +397,15 @@ function renderHistory(history, claims) {
 
     const info = document.createElement('div');
     info.className = 'history-info';
-    info.appendChild(historyLine('Было', entry.originalPrice || '—'));
-    info.appendChild(historyLine('Обнаружена', entry.firstSeenAt ? formatDateLong(entry.firstSeenAt) : '—'));
+    info.appendChild(historyLine(t('Было'), entry.originalPrice || '—'));
+    info.appendChild(historyLine(t('Обнаружена'), entry.firstSeenAt ? formatDateLong(entry.firstSeenAt) : '—'));
 
     if (entry.endAt) {
-      info.appendChild(historyLine('Окончание', formatDateLong(entry.endAt)));
+      info.appendChild(historyLine(t('Окончание'), formatDateLong(entry.endAt)));
     } else if (!entry.isActive && entry.endedDetectedAt) {
-      info.appendChild(historyLine('Не активна с проверки', formatDateLong(entry.endedDetectedAt)));
+      info.appendChild(historyLine(t('Не активна с проверки'), formatDateLong(entry.endedDetectedAt)));
     } else {
-      info.appendChild(historyLine('Окончание', 'Steam не сообщил срок'));
+      info.appendChild(historyLine(t('Окончание'), t('Steam не сообщил срок')));
     }
     card.appendChild(info);
 
@@ -373,7 +415,7 @@ function renderHistory(history, claims) {
     const open = document.createElement('button');
     open.className = 'small-action';
     open.type = 'button';
-    open.textContent = 'Открыть Steam';
+    open.textContent = t('Открыть Steam');
     open.addEventListener('click', () => sendMessage({ type: 'OPEN_URL', url: entry.url }));
     actions.appendChild(open);
 
@@ -382,15 +424,15 @@ function renderHistory(history, claims) {
     claim.className = `small-action claim ${isManuallyMarked ? 'is-claimed' : ''}`;
     claim.type = 'button';
     claim.disabled = claimStatus === 'confirmed';
-    claim.textContent = claimStatus === 'confirmed' ? 'Подтверждено Steam'
-      : isManuallyMarked ? 'Снять отметку' : 'Отметить вручную';
+    claim.textContent = claimStatus === 'confirmed' ? t('Подтверждено Steam')
+      : isManuallyMarked ? t('Снять отметку') : t('Отметить вручную');
     claim.addEventListener('click', async () => {
       const response = await sendMessage({
         type: 'SET_CLAIMED',
         appId: String(entry.appId),
         claimed: !isManuallyMarked
       });
-      if (!response?.ok) showError(response?.error || 'Не удалось сохранить отметку');
+      if (!response?.ok) showError(response?.error || t('Не удалось сохранить отметку'));
       await renderState();
     });
     actions.appendChild(claim);
@@ -418,7 +460,7 @@ function renderJournal(events, accountId) {
   els.journalList.replaceChildren();
   els.journalEmpty.classList.toggle('hidden', events.length !== 0);
   els.clearJournalBtn.classList.toggle('hidden', events.length === 0);
-  els.journalSummary.textContent = accountId ? 'Операции текущего аккаунта' : 'Операции без определённого аккаунта';
+  els.journalSummary.textContent = accountId ? t('Операции текущего аккаунта') : t('Операции без определённого аккаунта');
   for (const event of events) {
     const row = document.createElement('article');
     row.className = 'journal-card';
@@ -429,21 +471,21 @@ function renderJournal(events, accountId) {
     title.textContent = event.title || `App ${event.appId || '—'}`;
     title.title = title.textContent;
     const status = document.createElement('span');
-    const [label, type] = CLAIM_JOURNAL_STATUSES[event.status] || ['Неизвестно', 'warning'];
+    const [label, type] = CLAIM_JOURNAL_STATUSES[event.status] || [t('Неизвестно'), 'warning'];
     status.className = `journal-status ${type}`;
-    status.textContent = label;
+    status.textContent = t(label);
     head.append(title, status);
     row.appendChild(head);
     const description = document.createElement('div');
     description.className = 'journal-description';
-    description.textContent = event.message || 'Steam не предоставил подробностей.';
+    description.textContent = localizeMessage(event.message || t('Steam не предоставил подробностей.'));
     description.title = description.textContent;
     row.appendChild(description);
     const meta = document.createElement('div');
     meta.className = 'journal-meta';
     const when = Number(event.at) > 0 && Number.isFinite(Number(event.at))
       ? formatDateLong(Number(event.at)) : '—';
-    meta.textContent = `${when} · ${event.source === 'auto' ? 'Авто' : 'Вручную'}`;
+    meta.textContent = `${when} · ${event.source === 'auto' ? t('Авто') : t('Вручную')}`;
     row.appendChild(meta);
     els.journalList.appendChild(row);
   }
@@ -512,13 +554,13 @@ function createGameCard(game, claimStatus, showCountdown) {
   claimGameBtn.className = `open-game claim-game ${isConfirmed ? 'is-claimed' : ''}`;
   claimGameBtn.type = 'button';
   claimGameBtn.disabled = isConfirmed;
-  claimGameBtn.textContent = isConfirmed ? 'В библиотеке ✓'
-    : claimStatus === 'pending' ? 'Проверить получение повторно' : 'Забрать в библиотеку';
+  claimGameBtn.textContent = isConfirmed ? t('В библиотеке ✓')
+    : claimStatus === 'pending' ? t('Проверить получение повторно') : t('Забрать в библиотеку');
   claimGameBtn.addEventListener('click', async () => {
     hideError();
     hideNotice();
     claimGameBtn.disabled = true;
-    claimGameBtn.textContent = 'Добавляю через Steam…';
+    claimGameBtn.textContent = t('Добавляю через Steam…');
 
     let claimResult = null;
     let claimError = null;
@@ -531,7 +573,7 @@ function createGameCard(game, claimStatus, showCountdown) {
           url: game.url
         }
       });
-      if (!response?.ok) throw new Error(response?.error || 'Не удалось выполнить получение');
+      if (!response?.ok) throw new Error(response?.error || t('Не удалось выполнить получение'));
       claimResult = response.result;
     } catch (error) {
       claimError = error;
@@ -552,7 +594,7 @@ function createGameCard(game, claimStatus, showCountdown) {
   const open = document.createElement('button');
   open.className = 'secondary-game-action';
   open.type = 'button';
-  open.textContent = 'Открыть Steam';
+  open.textContent = t('Открыть Steam');
   open.addEventListener('click', () => {
     sendMessage({ type: 'OPEN_URL', url: game.url });
   });
@@ -562,15 +604,15 @@ function createGameCard(game, claimStatus, showCountdown) {
   claim.className = `secondary-game-action manual-mark ${isManuallyMarked ? 'is-claimed' : ''}`;
   claim.type = 'button';
   claim.disabled = isConfirmed;
-  claim.textContent = isConfirmed ? 'Подтверждено Steam'
-    : isManuallyMarked ? 'Снять отметку' : 'Отметить вручную';
+  claim.textContent = isConfirmed ? t('Подтверждено Steam')
+    : isManuallyMarked ? t('Снять отметку') : t('Отметить вручную');
   claim.addEventListener('click', async () => {
     const response = await sendMessage({
       type: 'SET_CLAIMED',
       appId: String(game.appId),
       claimed: !isManuallyMarked
     });
-    if (!response?.ok) showError(response?.error || 'Не удалось сохранить отметку');
+    if (!response?.ok) showError(response?.error || t('Не удалось сохранить отметку'));
     await renderState();
   });
   secondary.appendChild(claim);
@@ -615,84 +657,84 @@ function startCountdownRefresh() {
 async function refreshNextCheckText() {
   const state = await chrome.storage.local.get(['autoCheck', 'nextCheckAt']);
   els.nextCheck.textContent = state.autoCheck === false
-    ? 'выключена'
-    : state.nextCheckAt ? formatNextCheck(state.nextCheckAt) : 'планируется';
+    ? t('выключена')
+    : state.nextCheckAt ? formatNextCheck(state.nextCheckAt) : t('планируется');
 }
 
 function formatGiveawayTime(game) {
   if (game.endAt) return formatRemaining(game.endAt);
-  if (game.endText) return `До: ${game.endText}`;
-  return 'Срок окончания Steam не сообщил';
+  if (game.endText) return `${t('До:')} ${game.endText}`;
+  return t('Срок окончания Steam не сообщил');
 }
 
 function formatRemaining(endAt) {
   const end = Number(endAt);
-  if (!end) return 'Срок окончания Steam не сообщил';
+  if (!end) return t('Срок окончания Steam не сообщил');
   const diff = end - Date.now();
-  if (diff <= 0) return 'Раздача должна была завершиться';
+  if (diff <= 0) return t('Раздача должна была завершиться');
 
   const totalMinutes = Math.max(1, Math.floor(diff / 60000));
   const days = Math.floor(totalMinutes / 1440);
   const hours = Math.floor((totalMinutes % 1440) / 60);
   const minutes = totalMinutes % 60;
 
-  if (days > 0) return `До конца: ${days} д. ${hours} ч.`;
-  if (hours > 0) return `До конца: ${hours} ч. ${minutes} мин.`;
-  return `До конца: ${minutes} мин.`;
+  if (days > 0) return `${t('До конца:')} ${days} ${t('д.')} ${hours} ${t('ч.')}`;
+  if (hours > 0) return `${t('До конца:')} ${hours} ${t('ч.')} ${minutes} ${t('мин.')}`;
+  return `${t('До конца:')} ${minutes} ${t('мин.')}`;
 }
 
 function setBusy(busy) {
   els.checkBtn.disabled = busy;
-  els.checkBtnText.textContent = busy ? 'Проверяю…' : 'Проверить';
+  els.checkBtnText.textContent = busy ? t('Проверяю…') : t('Проверить');
 }
 
 function showClaimResult(result, game) {
   const status = String(result?.status || 'unknown');
-  const title = game?.title || 'Игра';
+  const title = game?.title || t('Игра');
 
   if (status === 'success') {
-    showNotice(`✓ ${title}: Steam подтвердил добавление в библиотеку.`);
+    showNotice(`✓ ${title}: ${t('Steam подтвердил добавление в библиотеку.')}`);
     return;
   }
   if (status === 'already_owned') {
-    showNotice(`✓ ${title}: игра уже находится в вашей библиотеке Steam.`);
+    showNotice(`✓ ${title}: ${t('игра уже находится в вашей библиотеке Steam.')}`);
     return;
   }
   if (status === 'login_required') {
     setSteamSessionUi({ status: 'login_required' });
-    showError('Требуется вход в Steam Store. Войдите в Steam, чтобы забирать игры.');
+    showError(t('Требуется вход в Steam Store. Войдите в Steam, чтобы забирать игры.'));
     return;
   }
   if (status === 'age_required') {
-    showError('Steam просит подтвердить возраст на странице этой игры. Откройте Steam, подтвердите возраст и повторите.');
+    showError(t('Steam просит подтвердить возраст на странице этой игры. Откройте Steam, подтвердите возраст и повторите.'));
     return;
   }
   if (status === 'promotion_unavailable' || status === 'button_missing' || status === 'button_disabled' || status === 'package_missing') {
-    showError(result?.message || 'Steam не показывает доступную кнопку Add to Account для этой раздачи.');
+    showError(result?.message || t('Steam не показывает доступную кнопку Add to Account для этой раздачи.'));
     return;
   }
   if (status === 'busy') {
-    showError(result?.message || 'Эта игра уже обрабатывается Dropwave.');
+    showError(result?.message || t('Эта игра уже обрабатывается Dropwave.'));
     return;
   }
   if (status === 'pending') {
-    showNotice(result?.message || 'Steam принял запрос. Подтверждение лицензии пока ожидается.');
+    showNotice(result?.message || t('Steam принял запрос. Подтверждение лицензии пока ожидается.'));
     return;
   }
   if (status === 'identity_unknown') {
-    showError(result?.message || 'Не удалось достоверно определить Steam-аккаунт.');
+    showError(result?.message || t('Не удалось достоверно определить Steam-аккаунт.'));
     return;
   }
   if (status === 'uncertain') {
-    showError(result?.message || 'Dropwave выполнил действие, но не смог подтвердить добавление. Проверьте библиотеку Steam.');
+    showError(result?.message || t('Dropwave выполнил действие, но не смог подтвердить добавление. Проверьте библиотеку Steam.'));
     return;
   }
-  showError(result?.message || 'Steam не подтвердил получение игры.');
+  showError(result?.message || t('Steam не подтвердил получение игры.'));
 }
 
 function showError(message) {
   hideNotice();
-  els.errorBox.textContent = message;
+  els.errorBox.textContent = localizeMessage(message);
   els.errorBox.classList.remove('hidden');
 }
 
@@ -703,7 +745,7 @@ function hideError() {
 
 function showNotice(message) {
   hideError();
-  els.noticeBox.textContent = message;
+  els.noticeBox.textContent = localizeMessage(message);
   els.noticeBox.classList.remove('hidden');
 }
 
@@ -713,7 +755,7 @@ function hideNotice() {
 }
 
 function formatDate(timestamp) {
-  return new Intl.DateTimeFormat('ru-RU', {
+  return new Intl.DateTimeFormat(currentLanguage === 'en' ? 'en-GB' : 'ru-RU', {
     day: '2-digit',
     month: '2-digit',
     hour: '2-digit',
@@ -722,7 +764,7 @@ function formatDate(timestamp) {
 }
 
 function formatDateLong(timestamp) {
-  return new Intl.DateTimeFormat('ru-RU', {
+  return new Intl.DateTimeFormat(currentLanguage === 'en' ? 'en-GB' : 'ru-RU', {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
@@ -733,25 +775,27 @@ function formatDateLong(timestamp) {
 
 function formatNextCheck(timestamp) {
   const diff = Number(timestamp) - Date.now();
-  if (diff <= 0) return 'скоро';
+  if (diff <= 0) return t('скоро');
   const minutes = Math.max(1, Math.ceil(diff / 60000));
-  if (minutes < 60) return `через ${minutes} мин.`;
+  if (minutes < 60) return `${t('через')} ${minutes} ${t('мин.')}`;
   const hours = Math.floor(minutes / 60);
   const rest = minutes % 60;
-  if (hours < 24) return rest ? `через ${hours} ч. ${rest} мин.` : `через ${hours} ч.`;
+  if (hours < 24) return rest ? `${t('через')} ${hours} ${t('ч.')} ${rest} ${t('мин.')}` : `${t('через')} ${hours} ${t('ч.')}`;
   return formatDate(timestamp);
 }
 
 function pluralGames(count) {
+  if (currentLanguage === 'en') return Number(count) === 1 ? 'offer' : 'offers';
   const n = Math.abs(Number(count)) % 100;
   const n1 = n % 10;
-  if (n > 10 && n < 20) return 'раздач';
-  if (n1 === 1) return 'раздача';
-  if (n1 >= 2 && n1 <= 4) return 'раздачи';
-  return 'раздач';
+  if (n > 10 && n < 20) return t('раздач');
+  if (n1 === 1) return t('раздача');
+  if (n1 >= 2 && n1 <= 4) return t('раздачи');
+  return t('раздач');
 }
 
 function pluralHours(hours) {
+  if (currentLanguage === 'en') return 'hours';
   const n = Number(hours);
   if (n === 24) return 'часа';
   return 'часов';

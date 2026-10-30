@@ -1,4 +1,5 @@
-const VERSION = '0.3.0';
+importScripts('i18n.js');
+const VERSION = '0.3.1';
 const STEAM_LOGIN_URL = 'https://store.steampowered.com/login/?redir=account%2F&redir_ssl=1';
 const SEARCH_URL = 'https://store.steampowered.com/search/?hwtype=0&maxprice=free&category1=998&specials=1&ndl=1';
 const ALARM_NAME = 'steam-free-games-daily-check';
@@ -387,8 +388,8 @@ async function performCheckSteam({ notify }) {
       try {
         await chrome.notifications.create('steam-free-summary', {
           type: 'basic', iconUrl: 'icons/icon128.png',
-          title: 'Steam: новые бесплатные игры',
-          message: `Найдено ${newGames.length} новых раздач. Нажмите на уведомление, чтобы открыть поиск Steam.`,
+          title: DW_I18N.t('Steam: новые бесплатные игры', await notificationLanguage()),
+          message: DW_I18N.t('Найдено {count} новых раздач. Нажмите на уведомление, чтобы открыть поиск Steam.', await notificationLanguage(), { count: newGames.length }),
           requireInteraction: true
         });
       } catch (error) { console.warn('Dropwave: summary notification failed', error); }
@@ -1459,7 +1460,15 @@ function safeSteamUrl(value) {
   }
 }
 
+async function notificationLanguage() {
+  const state = await chrome.storage.local.get('language');
+  return ['ru', 'en'].includes(state.language) ? state.language : DW_I18N.detect();
+}
+
 async function showGameNotification(game) {
+  const language = await notificationLanguage();
+  const nt = (text) => DW_I18N.t(text, language);
+
   const notificationId = `steam-free-app-${game.appId}`;
 
   const state = await chrome.storage.local.get('notificationTargets');
@@ -1474,26 +1483,29 @@ async function showGameNotification(game) {
   }
   await chrome.storage.local.set({ notificationTargets: targets });
 
-  const remaining = formatRemainingForNotification(game.endAt);
+  const remaining = formatRemainingForNotification(game.endAt, language);
   const messageLines = [
     game.title,
     `${game.originalPrice} → ${game.finalPrice}`
   ];
   if (remaining) messageLines.push(remaining);
-  messageLines.push('Нажмите на уведомление, чтобы открыть Steam.');
+  messageLines.push(nt('Нажмите на уведомление, чтобы открыть Steam.'));
 
   await chrome.notifications.create(notificationId, {
     type: 'basic',
     iconUrl: 'icons/icon128.png',
-    title: 'Steam: игра временно бесплатна',
+    title: nt('Steam: игра временно бесплатна'),
     message: messageLines.join('\n'),
-    contextMessage: 'Скидка 100%',
+    contextMessage: nt('Скидка 100%'),
     requireInteraction: true
   });
 }
 
 
 async function showAutoClaimNotification(game, result) {
+  const language = await notificationLanguage();
+  const nt = (text) => DW_I18N.t(text, language);
+
   const notificationId = `steam-free-app-${game.appId}`;
   const state = await chrome.storage.local.get('notificationTargets');
   const targets = state.notificationTargets && typeof state.notificationTargets === 'object'
@@ -1506,24 +1518,24 @@ async function showAutoClaimNotification(game, result) {
   }
   await chrome.storage.local.set({ notificationTargets: targets });
 
-  let title = 'Dropwave: новая бесплатная игра';
-  let message = `${game.title}\n${result.message || 'Автополучение завершено.'}`;
+  let title = nt('Dropwave: новая бесплатная игра');
+  let message = `${game.title}\n${DW_I18N.message(result.message || nt('Автополучение завершено.'), language)}`;
 
   if (result.status === 'success') {
-    title = 'Dropwave: игра добавлена в библиотеку';
+    title = nt('Dropwave: игра добавлена в библиотеку');
   } else if (result.status === 'already_owned') {
-    title = 'Dropwave: игра уже в библиотеке';
+    title = nt('Dropwave: игра уже в библиотеке');
   } else if (result.status === 'login_required') {
-    title = 'Dropwave: требуется вход в Steam';
-    message = `${game.title}\nВойдите в Steam Store в этом браузере, чтобы автополучение работало. Авторизации только в Steam Community недостаточно.`;
+    title = nt('Dropwave: требуется вход в Steam');
+    message = `${game.title}\n${nt('Войдите в Steam Store в этом браузере, чтобы автополучение работало. Авторизации только в Steam Community недостаточно.')}`;
   } else if (result.status === 'age_required') {
-    title = 'Dropwave: Steam требует подтверждение';
-    message = `${game.title}\nSteam просит подтвердить возраст на странице игры.`;
+    title = nt('Dropwave: Steam требует подтверждение');
+    message = `${game.title}\n${nt('Steam просит подтвердить возраст на странице игры.')}`;
   } else if (result.status === 'pending' || result.status === 'uncertain') {
-    title = 'Dropwave: результат не подтверждён';
+    title = nt('Dropwave: результат не подтверждён');
   } else if (result.status === 'error' || result.status === 'package_missing' ||
              result.status === 'promotion_unavailable' || result.status === 'identity_unknown') {
-    title = 'Dropwave: не удалось забрать игру';
+    title = nt('Dropwave: не удалось забрать игру');
   }
 
   await chrome.notifications.create(notificationId, {
@@ -1535,15 +1547,16 @@ async function showAutoClaimNotification(game, result) {
   });
 }
 
-function formatRemainingForNotification(endAt) {
+function formatRemainingForNotification(endAt, language) {
   const end = Number(endAt);
   if (!end || end <= Date.now()) return '';
+  const nt = (text) => DW_I18N.t(text, language);
   const minutes = Math.max(1, Math.floor((end - Date.now()) / 60000));
   const days = Math.floor(minutes / 1440);
   const hours = Math.floor((minutes % 1440) / 60);
-  if (days > 0) return `До конца: ${days} д. ${hours} ч.`;
-  if (hours > 0) return `До конца: ${hours} ч. ${minutes % 60} мин.`;
-  return `До конца: ${minutes} мин.`;
+  if (days > 0) return `${nt('До конца:')} ${days} ${nt('д.')} ${hours} ${nt('ч.')}`;
+  if (hours > 0) return `${nt('До конца:')} ${hours} ${nt('ч.')} ${minutes % 60} ${nt('мин.')}`;
+  return `${nt('До конца:')} ${minutes} ${nt('мин.')}`;
 }
 
 async function openNotificationTarget(notificationId) {
