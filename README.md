@@ -1,4 +1,5 @@
 <div align="center">
+  <img src="icons/icon128.png" alt="Dropwave icon" width="90" height="90">
   <h1>🎁 Dropwave</h1>
   <strong>Steam Free-to-Keep Game Tracker & Auto-Claimer</strong>
   <p>Минималистичное браузерное расширение для поиска и получения временно бесплатных игр Steam.<br>
@@ -6,6 +7,17 @@
   <p><strong>v0.3.0</strong> · Chromium Manifest V3 · Brave / Chrome</p>
   <p><a href="#-русский">Русский</a> · <a href="#-english">English</a></p>
 </div>
+
+---
+
+## 🖥️ Интерфейс / Interface
+
+<div align="center">
+  <img src="docs/popup-preview.svg" alt="Dropwave v0.3.0 compact popup interface preview" width="390">
+  <p><sub>Пример минималистичного меню (демонстрационные данные). / Minimal popup preview (illustrative values).</sub></p>
+</div>
+
+**Скачать / Download:** [Releases](https://github.com/fataxd/Dropwave-/releases) · [История изменений / Changelog](CHANGELOG.md)
 
 ---
 
